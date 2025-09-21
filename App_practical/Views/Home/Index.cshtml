@@ -1,0 +1,43 @@
+﻿@model DataViewModel?
+
+@{
+    ViewData["Title"] = "Калькулятор";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Калькулятор</h1>
+    @if (Model != null)
+    {
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @Model.ErrorMessage
+            </div>
+        }
+        @if (Model.Result != null)
+        {
+            <div class="alert alert-primary" role="alert">
+                Результат расчёта: @Model.Result
+            </div>
+        }
+    }
+    <form method="post">
+        <div class="form-group">
+            <label for="value1">Число 1</label>
+            <input type="text" class="form-control" name="value1">
+            <div class="form-group">
+                <label for="operation">Операция</label>
+                <select class="form-control" name="operation">
+                    <option>Сложить (+)</option>
+                    <option>Вычесть (-)</option>
+                    <option>Умножить (*)</option>
+                    <option>Разделить (/)</option>
+                    <option>Возвести в степень (^)</option>
+                </select>
+            </div>
+            <label for="value2">Число 2</label>
+            <input type="text" class="form-control" name="value2">
+        </div>
+        <input type="submit" value="Рассчитать" />
+    </form>
+</div>
