@@ -35,25 +35,27 @@ namespace App_practical.Controllers
 
             switch (operation)
             {
-                case "Сложить (+)":
+                case "+":
                     result = value1_double + value2_double;
                     break;
-                case "Вычесть (-)":
+                case "-":
                     result = value1_double - value2_double;
                     break;
-                case "Умножить (*)":
+                case "*":
                     result = value1_double * value2_double;
                     break;
-                case "Разделить (/)":
+                case "/":
                     if (value2_double == 0.0)
                     {
                         return ShowError("Деление на ноль.");
                     }
                     result = value1_double / value2_double;
                     break;
-                case "Возвести в степень (^)":
+                case "^":
                     result = Math.Pow(value1_double, value2_double);
                     break;
+                default:
+                    return ShowError("Неподдерживаемая операция.");
             }
 
             return View(new DataViewModel() { Result = Math.Round(result, 4) });
