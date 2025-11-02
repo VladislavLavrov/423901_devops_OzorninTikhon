@@ -1,0 +1,18 @@
+﻿services:     
+ postgredb:
+    image: postgres:16.1
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: postgres
+      POSTGRES_DB: Calculator
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 15432:5432
+ web:
+   container_name: web-api
+   hostname: api
+   build: .
+   ports:
+     - "0.0.0.0:5009:5009"

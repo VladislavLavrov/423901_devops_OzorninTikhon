@@ -12,7 +12,7 @@ namespace App_practical
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<DatabaseContext>(
-                o => o.UseNpgsql("Host=localhost;Port=5432;Database=Calculator;Username=postgres;Password=admin")
+                o => o.UseNpgsql("Host=postgredb;Port=5432;Database=Calculator;Username=postgres;Password=admin")
                 );
 
             var app = builder.Build();
