@@ -1,0 +1,55 @@
+﻿@model DataViewModel?
+
+@{
+    ViewData["Title"] = "Калькулятор";
+    Variant variant = Model?.Variant ?? new Variant();
+}
+
+<div class="text-center">
+    @if (Model != null)
+    {
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @Model.ErrorMessage
+            </div>
+        }
+        @if (Model.Result != null)
+        {
+            <div class="alert alert-primary" role="alert">
+                Результат расчёта: @Model.Result
+            </div>
+        }
+    }
+    <form method="post">
+        <div class="form-group">
+            <label for="variantName">Название варианта</label>
+            <input type="hidden" name="id" value="@variant.Id">
+            <input type="text" class="form-control" name="variantName" value="@variant.Name">
+            <label for="value1">Число 1</label>
+            <input type="text" class="form-control" name="value1" value="@variant.Value1">
+            <div class="form-group">
+                <label for="operation">Операция</label>
+                <select class="form-control" name="operation">
+                    @{
+                        string[] operations = ["+", "-", "*", "/", "^"];
+                        foreach (string op in operations)
+                        {
+                            if (variant.Operation == op[0])
+                            {
+                                <option selected>@op</option>
+                            }
+                            else
+                            {
+                                <option>@op</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <label for="value2">Число 2</label>
+            <input type="text" class="form-control" name="value2" value="@variant.Value2">
+        </div>
+        <input type="submit" value="Рассчитать" />
+    </form>
+</div>

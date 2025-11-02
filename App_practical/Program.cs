@@ -1,3 +1,6 @@
+using App_practical.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace App_practical
 {
     public class Program
@@ -8,6 +11,9 @@ namespace App_practical
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<DatabaseContext>(
+                o => o.UseNpgsql("Host=localhost;Port=5432;Database=Calculator;Username=postgres;Password=admin")
+                );
 
             var app = builder.Build();
 

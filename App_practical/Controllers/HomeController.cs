@@ -1,3 +1,4 @@
+using App_practical.Data;
 using App_practical.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -9,31 +10,46 @@ namespace App_practical.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly DatabaseContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, DatabaseContext context)
         {
             _logger = logger;
+            _context = context;
+        }
+
+        public IActionResult Index()
+        {
+            return View(_context.Variants.ToList());
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Calculate(int id)
         {
-            return View(null);
+            Variant? variant = _context.Variants.Where(x => x.Id == id).FirstOrDefault();
+            return View(variant);
         }
 
         [HttpPost]
-        public IActionResult Index(string value1, string value2, string operation)
+        public IActionResult Calculate([FromForm] VariantDataViewModel dataViewModel)
         {
-            Console.WriteLine($"\"{value1}\" \"{value2}\"");
-            if (!double.TryParse(value1.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double value1_double)
-                || !double.TryParse(value2.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double value2_double))
+            if (!double.TryParse(
+                    dataViewModel.Value1.Replace(',', '.'),
+                    NumberStyles.Any,
+                    CultureInfo.InvariantCulture,
+                    out double value1_double)
+                || !double.TryParse(
+                    dataViewModel.Value2.Replace(',', '.'),
+                    NumberStyles.Any,
+                    CultureInfo.InvariantCulture,
+                    out double value2_double))
             {
                 return ShowError("Было введено неверное число.");
             }
 
             double result = 0.0;
 
-            switch (operation)
+            switch (dataViewModel.Operation)
             {
                 case "+":
                     result = value1_double + value2_double;
@@ -58,7 +74,46 @@ namespace App_practical.Controllers
                     return ShowError("Неподдерживаемая операция.");
             }
 
-            return View(new DataViewModel() { Result = Math.Round(result, 4) });
+            Variant? variant;
+
+            if (dataViewModel.Id == 0)
+            {
+                variant = new()
+                {
+                    Name = dataViewModel.VariantName,
+                    Value1 = value1_double,
+                    Value2 = value2_double,
+                    Operation = dataViewModel.Operation[0],
+                };
+
+                _context.Variants.Add(variant);
+                _context.SaveChanges();
+            }
+            else
+            {
+                variant = _context.Variants.Where(x => x.Id == dataViewModel.Id).FirstOrDefault();
+                if (variant != null)
+                {
+                    variant.Name = dataViewModel.VariantName;
+                    variant.Value1 = value1_double;
+                    variant.Value2 = value2_double;
+                    variant.Operation = dataViewModel.Operation[0];
+                    _context.SaveChanges();
+                }
+            }
+
+            return View(new DataViewModel() { Result = Math.Round(result, 4), Variant = variant });
+        }
+
+        public IActionResult Delete(int id)
+        {
+            Variant? variant = _context.Variants.Where(x => x.Id == id).FirstOrDefault();
+            if (variant != null)
+            {
+                _context.Variants.Remove(variant);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Index");
         }
 
         ViewResult ShowError(string message)
