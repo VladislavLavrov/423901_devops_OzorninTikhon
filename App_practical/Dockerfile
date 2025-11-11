@@ -12,7 +12,7 @@ WORKDIR /src
 COPY ["App_practical.csproj", "."]
 RUN dotnet restore "./App_practical.csproj"
 COPY . .
-WORKDIR "/src/."
+WORKDIR /src/.
 RUN dotnet build "./App_practical.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
