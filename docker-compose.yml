@@ -1,0 +1,33 @@
+﻿services:     
+ postgres:
+    image: postgres:16.1
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: postgres
+      POSTGRES_DB: Calculator
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 95432:5432
+    networks:
+      - app-network
+ web:
+    container_name: web-api
+    hostname: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5009:5009"
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+    app-network:
+        driver: bridge
