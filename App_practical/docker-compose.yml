@@ -9,7 +9,7 @@
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
-      - 95432:5432
+      - 15432:5432
     networks:
       - app-network
  web:
