@@ -38,10 +38,8 @@ namespace App_practical
             {
                 var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
-                // ���� ��
                 await WaitForDatabase(context);
 
-                // ������������� ������� ������� �� ������ �������
                 await context.Database.EnsureCreatedAsync();
                 Console.WriteLine("Database tables created!");
             }
