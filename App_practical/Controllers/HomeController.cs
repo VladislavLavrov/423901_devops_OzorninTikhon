@@ -1,9 +1,12 @@
 using App_practical.Data;
 using App_practical.Models;
+using App_practical.Services;
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace App_practical.Controllers
 {
@@ -11,11 +14,13 @@ namespace App_practical.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly DatabaseContext _context;
+        private readonly KafkaProducerService<Null,string> _producer;
 
-        public HomeController(ILogger<HomeController> logger, DatabaseContext context)
+        public HomeController(ILogger<HomeController> logger, DatabaseContext context, KafkaProducerService<Null,string> producer)
         {
             _logger = logger;
             _context = context;
+            _producer = producer;
         }
 
         public IActionResult Index()
@@ -31,7 +36,7 @@ namespace App_practical.Controllers
         }
 
         [HttpPost]
-        public IActionResult Calculate([FromForm] VariantDataViewModel dataViewModel)
+        public async Task<IActionResult> Calculate([FromForm] VariantDataViewModel dataViewModel)
         {
             if (!double.TryParse(
                     dataViewModel.Value1.Replace(',', '.'),
@@ -47,62 +52,25 @@ namespace App_practical.Controllers
                 return ShowError("Было введено неверное число.");
             }
 
-            double result = 0.0;
-
-            switch (dataViewModel.Operation)
+            Variant variant = new()
             {
-                case "+":
-                    result = value1_double + value2_double;
-                    break;
-                case "-":
-                    result = value1_double - value2_double;
-                    break;
-                case "*":
-                    result = value1_double * value2_double;
-                    break;
-                case "/":
-                    if (value2_double == 0.0)
-                    {
-                        return ShowError("Деление на ноль.");
-                    }
-                    result = value1_double / value2_double;
-                    break;
-                case "^":
-                    result = Math.Pow(value1_double, value2_double);
-                    break;
-                default:
-                    return ShowError("Неподдерживаемая операция.");
-            }
+                Value1 = value1_double,
+                Value2 = value2_double,
+                Operation = dataViewModel.Operation[0],
+            };
 
-            Variant? variant;
+            // Отправка данных в Kafka
+            await SendDataToKafka(variant);
 
-            if (dataViewModel.Id == 0)
-            {
-                variant = new()
-                {
-                    Name = dataViewModel.VariantName,
-                    Value1 = value1_double,
-                    Value2 = value2_double,
-                    Operation = dataViewModel.Operation[0],
-                };
+            return RedirectToAction(nameof(Index));
+        }
 
-                _context.Variants.Add(variant);
-                _context.SaveChanges();
-            }
-            else
-            {
-                variant = _context.Variants.Where(x => x.Id == dataViewModel.Id).FirstOrDefault();
-                if (variant != null)
-                {
-                    variant.Name = dataViewModel.VariantName;
-                    variant.Value1 = value1_double;
-                    variant.Value2 = value2_double;
-                    variant.Operation = dataViewModel.Operation[0];
-                    _context.SaveChanges();
-                }
-            }
-
-            return View(new DataViewModel() { Result = Math.Round(result, 4), Variant = variant });
+        [HttpPost]
+        public IActionResult Callback([FromBody] Variant variant)
+        {
+            _context.Variants.Add(variant);
+            _context.SaveChanges();
+            return Ok();
         }
 
         public IActionResult Delete(int id)
@@ -125,6 +93,12 @@ namespace App_practical.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private async Task SendDataToKafka(Variant variant)
+        {
+            var json = JsonSerializer.Serialize(variant);
+            await _producer.ProduceAsync("9_calculator", new Message<Null, string>{ Value = json });
         }
     }
 }

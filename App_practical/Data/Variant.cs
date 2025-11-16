@@ -10,5 +10,6 @@ namespace App_practical.Data
         public double Value1 { get; set; }
         public char Operation { get; set; }
         public double Value2 { get; set; }
+        public double? Result { get; set; }
     }
 }
