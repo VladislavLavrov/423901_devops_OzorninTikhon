@@ -1,4 +1,6 @@
 using App_practical.Data;
+using App_practical.Services;
+using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 
 namespace App_practical
@@ -31,6 +33,12 @@ namespace App_practical
             builder.Services.AddDbContext<DatabaseContext>(
                 o => o.UseNpgsql("Host=postgres;Port=5432;Database=Calculator;Username=postgres;Password=admin")
                 );
+
+            builder.Services.AddRazorPages();
+            builder.Services.AddHttpClient();
+            builder.Services.AddHostedService<KafkaConsumerService>();
+            builder.Services.AddSingleton<KafkaProducerHandler>();
+            builder.Services.AddSingleton<KafkaProducerService<Null,string>>();
 
             var app = builder.Build();
 
