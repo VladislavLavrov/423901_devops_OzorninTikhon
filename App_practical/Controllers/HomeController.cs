@@ -54,6 +54,7 @@ namespace App_practical.Controllers
 
             Variant variant = new()
             {
+                Name = dataViewModel.VariantName,
                 Value1 = value1_double,
                 Value2 = value2_double,
                 Operation = dataViewModel.Operation[0],

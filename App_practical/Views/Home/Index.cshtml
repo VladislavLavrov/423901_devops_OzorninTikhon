@@ -15,6 +15,10 @@
             <tr>
                 <th>Номер варианта</th>
                 <th>Название варианта</th>
+                <th>Число 1</th>
+                <th>Операция</th>
+                <th>Число 2</th>
+                <th>Результат</th>
                 <th>Действия</th>
             </tr>
             @foreach (Variant variant in Model)
@@ -22,6 +26,10 @@
                 <tr>
                     <td>@variant.Id</td>
                     <td>@variant.Name</td>
+                    <td>@variant.Value1</td>
+                    <td>@variant.Operation</td>
+                    <td>@variant.Value2</td>
+                    <td>@variant.Result</td>
                     <td>
                         <a href="/home/delete/?id=@variant.Id">Удалить</a>
                     </td>
