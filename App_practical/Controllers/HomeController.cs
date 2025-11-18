@@ -65,7 +65,6 @@ namespace App_practical.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
         public IActionResult Callback([FromBody] Variant variant)
         {
             _context.Variants.Add(variant);
