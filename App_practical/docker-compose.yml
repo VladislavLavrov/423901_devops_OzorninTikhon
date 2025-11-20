@@ -1,0 +1,15 @@
+﻿services:
+ web:
+    container_name: web-api
+    hostname: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5009:5009"
+    networks:
+      - app-network
+
+networks:
+    app-network:
+        driver: bridge
