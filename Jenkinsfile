@@ -1,5 +1,6 @@
 ﻿pipeline {
     agent any
+
     stages {
         stage('Hello') {
             steps {
@@ -8,18 +9,14 @@
         }
         stage('Build Docker Image') {
             steps {
-                dir('App_practical') {
-                    sh 'ls -l'
-                    sh 'docker compose build'
-                }
+                sh 'ls -l'
+                sh 'docker compose build'
             }
         }
-        stage('Start Docker Container') {
+		stage('Start Docker Container') {
             steps {
-                dir('App_practical') {
-                    sh 'docker compose up -d'
-                }
+                sh 'docker compose up -d'
             }
         }
     }
- }
+}
