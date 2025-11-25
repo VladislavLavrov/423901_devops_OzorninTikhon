@@ -42,9 +42,11 @@ namespace App_practical.Services
         /// <param name="cancellationToken">Токен отмены операции.</param>
         private async Task StartConsumerLoop(CancellationToken cancellationToken)
         {
+            Console.WriteLine("StartConsumerLoop Start");
             _kafkaConsumer.Subscribe(_topic);
             while (!cancellationToken.IsCancellationRequested)
             {
+                Console.WriteLine("StartConsumerLoop Start while");
                 try
                 {
                     var cr = _kafkaConsumer.Consume(cancellationToken);
@@ -61,21 +63,26 @@ namespace App_practical.Services
                 }
                 catch (OperationCanceledException)
                 {
+                    Console.WriteLine("StartConsumerLoop OperationCanceledException");
                     break;
                 }
                 catch (ConsumeException e)
                 {
+                    Console.WriteLine("StartConsumerLoop ConsumeException " + e.Message);
                     if (e.Error.IsFatal)
                     {
                         // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
                         break;
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine("StartConsumerLoop Exception " + e.Message);
                     break;
                 }
+                Console.WriteLine("StartConsumerLoop End while");
             }
+            Console.WriteLine("StartConsumerLoop End");
         }
         /// <summary>
         /// Очистка ресурсов Consumer’а при завершении работы сервиса.
