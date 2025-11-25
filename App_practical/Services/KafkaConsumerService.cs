@@ -49,7 +49,9 @@ namespace App_practical.Services
                 Console.WriteLine("StartConsumerLoop Start while");
                 try
                 {
+                    Console.WriteLine("StartConsumerLoop Before Consume");
                     var cr = _kafkaConsumer.Consume(cancellationToken);
+                    Console.WriteLine("StartConsumerLoop After Consume");
                     var ip = cr.Message.Value;
                     // Исходные данные
                     var inputData = JsonSerializer.Deserialize<Variant>(cr.Message.Value);
@@ -57,6 +59,7 @@ namespace App_practical.Services
                     var result = CalculationLibrary.Calculate(inputData.Value1, inputData.Value2, inputData.Operation);
                     inputData.Result = result;
                     var httpClient = _clientFactory.CreateClient();
+                    Console.WriteLine("StartConsumerLoop Before await PostAsJsonAsync");
                     await httpClient.PostAsJsonAsync("http://localhost:5009/Home/Callback", inputData);
                     // Обработка сообщения...
                     Console.WriteLine($"Message key: {cr.Message.Key}, value: {cr.Message.Value}");
