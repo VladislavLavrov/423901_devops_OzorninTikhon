@@ -98,7 +98,7 @@ namespace App_practical.Controllers
         private async Task SendDataToKafka(Variant variant)
         {
             var json = JsonSerializer.Serialize(variant);
-            await _producer.ProduceAsync("9_calculator", new Message<Null, string>{ Value = json });
+            await _producer.ProduceAsync("ozornin", new Message<Null, string>{ Value = json });
         }
     }
 }

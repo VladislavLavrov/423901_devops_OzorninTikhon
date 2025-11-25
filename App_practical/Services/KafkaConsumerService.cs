@@ -43,6 +43,8 @@ namespace App_practical.Services
         private async Task StartConsumerLoop(CancellationToken cancellationToken)
         {
             Console.WriteLine("StartConsumerLoop Start");
+            await Task.Delay(2000, cancellationToken);
+            Console.WriteLine("StartConsumerLoop After await");
             _kafkaConsumer.Subscribe(_topic);
             while (!cancellationToken.IsCancellationRequested)
             {
