@@ -1,0 +1,39 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Регистрация";
+}
+<div class="text-center">
+    <h1 class="display-4">Регистрация</h1>
+    @if (Model != null && Model.Length > 0)
+    {
+        <p class="text-danger">@Model</p>
+    }
+    <form method="post">
+        <p>
+            <label>Электронная почта</label>
+            @Html.TextBox("email", "", new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            <label>Фамилия</label>
+            @Html.TextBox("lastName", "", new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            <label>Имя</label>
+            @Html.TextBox("firstName", "", new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            <label>Отчество (при наличии)</label>
+            @Html.TextBox("middleName", "", new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            <label>Пароль</label>
+            @Html.TextBox("password", "", new Dictionary<string, object>() { { "class", "form-control" }, { "type", "password" } })
+        </p>
+        <p>
+            <label>Подтвердите пароль</label>
+            @Html.TextBox("confirmPassword", "", new Dictionary<string, object>() { { "class", "form-control" }, { "type", "password" } })
+        </p>
+        <p><button class="btn btn-primary">Зарегистрироваться</button></p>
+    </form>
+    <p>Есть аккаунт? <button class="btn btn-primary" onclick="location.href='/home/login';">Войти</button></p>
+</div>

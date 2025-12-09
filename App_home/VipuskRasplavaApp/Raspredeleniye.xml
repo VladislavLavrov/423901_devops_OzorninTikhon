@@ -1,0 +1,385 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RaspredeleniyeDutyaApp</name>
+    </assembly>
+    <members>
+        <member name="T:RaspredeleniyeDutyaApp.Controllers.ServerController">
+            <summary>
+            Контроллер для вычислений и работы с базой данных
+            </summary>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.Parameters(System.Int32)">
+            <summary>
+            Получение списка входных данных со значениями по-умолчанию.
+            </summary>
+            <remarks>
+            Получение списка входных данных со значениями по-умолчанию.
+            Также можно получить данные входные параметры у какого-либо конкретного варианта,
+            указав параметр id.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <param name="id">Номер варианта</param>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.CalculateVariant(System.Int32)">
+            <summary>
+            Расчёт варианта
+            </summary>
+            <remarks>
+            Рассчитывает распределение дутья по фурмам по данным из варианта под номером id.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            Возвращает код 400 "Bad Request", если входные данные неверны.
+            </remarks>
+            <param name="id">Номер варианта</param>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.GenerateExcelReport(System.Int32)">
+            <summary>
+            Генерация файла Microsoft Excel для варианта
+            </summary>
+            <remarks>
+            Генерирует файл Microsoft Excel для варианта под номером variantId.
+            Возвращает строку Base64 с байтами готового файла.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <param name="variantId">Номер варианта, для которого нужно сгенерировать отчёт Excel</param>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.GetVariants">
+            <summary>
+            Доступные пользователю варианты
+            </summary>
+            <remarks>
+            Возвращает список вариантов из базы данных, к которым у пользователя есть доступ.
+            Возвращает JSON со списком вариантов внутри поля "variants".
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.GetVariant(System.Int32)">
+            <summary>
+            Получение данных о варианте
+            </summary>
+            <remarks>
+            Возвращает данные о варианте под номером id из базы данных, а также информацию о владельце данного варианта.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <param name="id">Номер варианта</param>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.SaveVariant(RaspredeleniyeDutyaApp.Data.Variant,System.Int32)">
+            <summary>
+            Сохранение варианта
+            </summary>
+            <remarks>
+            Сохраняет новый вариант в базу данных (или обновляет уже существующий).
+            Возвращает JSON c номером варианта при успешной работе.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <param name="variant">Данные о варианта</param>
+            <param name="id">Номер варианта, или 0, если нужно создать новый вариант в базе данных</param>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.Delete(System.Int32)">
+            <summary>
+            Удаление варианта
+            </summary>
+            <remarks>
+            Удаляет информацию о варианте под номером id из базы данных.
+            Возвращает JSON с полем "variantName", в котором хранится название удалённого варианта при успешном удалении.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <param name="id">Номер варианта</param>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.Login(RaspredeleniyeDutyaApp.Models.Server.LoginDataModel)">
+            <summary>
+            Авторизация пользователя
+            </summary>
+            <param name="data">Электронная почта и пароль</param>
+            <remarks>
+            JSON с полями "userId" (имя пользователя) и "name" (полное имя пользователя).
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.Logout">
+            <summary>
+            Выход из аккаунта
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.Register(RaspredeleniyeDutyaApp.Models.Server.RegisterDataModel)">
+            <summary>
+            Регистрация нового аккаунта
+            </summary>
+            <param name="data">Данные аккаунта</param>
+            <remarks>
+            JSON с текстом ошибки при неудачной попытке создания аккаунта.
+            Возвращает код 200 "OK" при успешном создании аккаунта.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.GetUserInformation(System.Int32)">
+            <summary>
+            Получение информации об аккаунте пользователя
+            </summary>
+            <param name="id">Идентификатор пользователя</param>
+            <remarks>
+            JSON с информацией о пользователе.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.SaveUserInformation(RaspredeleniyeDutyaApp.Models.Server.UserSettingsDataModel)">
+            <summary>
+            Сохранение информации об аккаунте пользователя
+            </summary>
+            <param name="userInfo">Информация об аккаунте пользователя вместе с его идентификатором</param>
+            <remarks>
+            Возвращает код 200 "OK" при успешном сохранении данных.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            Возвращает код 404 "Not Found", если запрашиваемого пользователя не существует.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.SaveUserPassword(RaspredeleniyeDutyaApp.Controllers.ServerController.UserPasswordInfo)">
+            <summary>
+            Изменение пароля пользователя
+            </summary>
+            <param name="passInfo">Новый пароль пользователя с подтвердением и идентификатором</param>
+            <remarks>
+            Возвращает код 200 "OK" при успешном сохранении данных.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            Возвращает код 404 "Not Found", если запрашиваемого пользователя не существует.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.IsUserAdmin">
+            <summary>
+            Получение статуса администратора данного пользователя
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.DeleteUser(System.Int32)">
+            <summary>
+            Удаление аккаунта пользователя (для администраторов)
+            </summary>
+            <param name="userId">Идентификатор пользователя</param>
+            <remarks>
+            Возвращает код 200 "OK" при успешном удалении данных.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            Возвращает код 404 "Not Found", если запрашиваемого пользователя не существует.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.SetUserAdmin(System.Int32,System.Boolean)">
+            <summary>
+            Назначение пользователя администратором сайта (для администраторов)
+            </summary>
+            <param name="userId">Идентификатор пользователя</param>
+            <param name="admin">"true", если пользователь должен стать администратором, в противном случае "false"</param>
+            <remarks>
+            Возвращает код 200 "OK" при успешном сохранении данных.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            Возвращает код 404 "Not Found", если запрашиваемого пользователя не существует.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Controllers.ServerController.GetUserList">
+            <summary>
+            Получение списка пользователей (для администраторов)
+            </summary>
+            <remarks>
+            JSON со списком пользователей и их информацией.
+            Возвращает код 403 "Forbidden" при отсутствии доступа.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.Id">
+            <summary>
+            ID пользователя
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.Email">
+            <summary>
+            Электронная почта
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.LastName">
+            <summary>
+            Фамилия
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.FirstName">
+            <summary>
+            Имя
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.MiddleName">
+            <summary>
+            Отчество
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.IsAdmin">
+            <summary>
+            Свойство, определяющее, является ли пользователь администратором
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.PasswordHash">
+            <summary>
+            Хеш пароля пользователя
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.UserAccount.Variants">
+            <summary>
+            Варианты пользователя
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.Variant.Id">
+            <summary>
+            ID варианта
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.Variant.Name">
+            <summary>
+            Название варианта
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.Variant.OwnerId">
+            <summary>
+            ID пользователя, который создал данный вариант
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.Variant.Data">
+            <summary>
+            Входные данные по фурмам
+            </summary>
+        </member>
+        <member name="P:RaspredeleniyeDutyaApp.Data.Variant.Owner">
+            <summary>
+            Информация о создателе варианта
+            </summary>
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.Initial">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.AdminsAndPasswords">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AdminsAndPasswords.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AdminsAndPasswords.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AdminsAndPasswords.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.AddEmail">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddEmail.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddEmail.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddEmail.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.AddInitialDataToVariant">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddInitialDataToVariant.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddInitialDataToVariant.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddInitialDataToVariant.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.AddFurmClosing">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddFurmClosing.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddFurmClosing.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddFurmClosing.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.AddTrebZnTeorInitialData">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddTrebZnTeorInitialData.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddTrebZnTeorInitialData.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.AddTrebZnTeorInitialData.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.RemoveInitialDataOchag">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.RemoveInitialDataOchag.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.RemoveInitialDataOchag.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.RemoveInitialDataOchag.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.CombineInitialData">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.CombineInitialData.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.CombineInitialData.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.CombineInitialData.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.InitialDataRenamed">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.InitialDataRenamed.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.InitialDataRenamed.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.InitialDataRenamed.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaspredeleniyeDutyaApp.Migrations.SeparateFullName">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.SeparateFullName.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.SeparateFullName.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaspredeleniyeDutyaApp.Migrations.SeparateFullName.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

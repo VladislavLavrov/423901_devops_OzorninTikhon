@@ -1,0 +1,94 @@
+﻿@model List<VariantDataModel>
+@{
+    ViewData["Title"] = "Главная страница";
+}
+
+<h1 class="display-4">Распределение дутья по фурмам - Веб-приложение</h1>
+@if (User?.Identity?.IsAuthenticated ?? false)
+{
+    <h2 class="display-6">Добро пожаловать, @(User.Identity.Name).</h2>
+    <h2 class="display-6">Список вариантов</h2>
+    <p>
+        <button class="btn btn-primary" onclick="location.href='/home/parameters';">Новый вариант</button>
+    </p>
+    <p>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#variantSearch" aria-expanded="false" aria-controls="variantSearch">
+            Поиск вариантов
+        </button><br />
+        <div class="collapse" id="variantSearch">
+            <div class="card card-body">
+                <form method="post">
+                    <p>
+                        <label>Идентификатор варианта</label>
+                        @Html.TextBox("variantId", "", new Dictionary<string, object>() { { "class", "form-control" } })
+                    </p>
+                    <p>
+                        <label>Название варианта</label>
+                        @Html.TextBox("variantName", "", new Dictionary<string, object>() { { "class", "form-control" } })
+                    </p>
+                    <p>
+                        <label>Автор варианта</label>
+                        <table>
+                            <tr>
+                                <td>
+                                    <label>Идентификатор</label>
+                                    @Html.TextBox("userId", "", new Dictionary<string, object>() { { "class", "form-control" } })
+                                </td>
+                                <td>
+                                    <label>Фамилия</label>
+                                    @Html.TextBox("userLastName", "", new Dictionary<string, object>() { { "class", "form-control" } })
+                                </td>
+                                <td>
+                                    <label>Имя</label>
+                                    @Html.TextBox("userFirstName", "", new Dictionary<string, object>() { { "class", "form-control" } })
+                                </td>
+                                <td>
+                                    <label>Отчество</label>
+                                    @Html.TextBox("userMiddleName", "", new Dictionary<string, object>() { { "class", "form-control" } })
+                                </td>
+                            </tr>
+                        </table>
+                    </p>
+                    <p>
+                        <label>Электронная почта автора варианта</label>
+                        @Html.TextBox("userEmail", "", new Dictionary<string, object>() { { "class", "form-control" } })
+                    </p>
+                    <p><button class="btn btn-primary">Совершить поиск</button></p>
+                </form>
+            </div>
+        </div>
+    </p>
+    @if (Model.Count > 0)
+    {
+        <table class="table table-striped">
+            <tr>
+                <th>Номер варианта</th>
+                <th>Название варианта</th>
+                <th>Автор варианта</th>
+                <th>Действия</th>
+            </tr>
+            @foreach (VariantDataModel variant in Model)
+            {
+                <tr>
+                    <td>@variant.Id</td>
+                    <td>@variant.Name</td>
+                    <td>@variant.Owner.GetFullName()</td>
+                    <td>
+                        <a href="/home/parameters/?id=@variant.Id&results=1">Результаты расчёта</a>
+                        <a href="/home/parameters/?id=@variant.Id">Изменить</a>
+                        <a href="/home/delete/?id=@variant.Id">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <label>Нет доступных вариантов для показа.</label>
+    }
+}
+else
+{
+    <h2 class="display-6">Войдите в аккаунт, чтобы начать работу.</h2>
+    <button class="btn btn-primary" onclick="location.href='/home/login';">Авторизация</button>
+}

@@ -1,0 +1,300 @@
+﻿@model ParametersViewModel
+@using System.Text.Json;
+
+@functions {
+    record Parameter(string Name, string Type, string Description, object DefaultValue);
+    int nRabFurm = 0;
+}
+
+@{
+    ViewData["Title"] = "Параметры варианта";
+
+    var parameters = await RequestHelper.RequestGet<List<Parameter>>(
+        "/server/parameters?id=" + Model.VariantId,
+        Context.Request.Cookies);
+
+    if (Model.NRabFurm > 0)
+    {
+        nRabFurm = Model.NRabFurm;
+    }
+    else
+    {
+        JsonElement? json = (JsonElement?)parameters?.Where(p => p.Name == "nRabFurm").FirstOrDefault()?.DefaultValue;
+        nRabFurm = json?.GetInt32() ?? 0;
+    }
+    var textboxAttributes = new Dictionary<string, object>() { { "class", "form-control" } };
+    var textboxAttributesInvalid = new Dictionary<string, object>() { { "class", "form-control is-invalid" } };
+}
+
+<script>
+    function furmChange() {
+        async function func() {
+            let textbox = document.getElementsByName("furmnRabFurm")[0];
+            let nRabFurm = parseInt(textbox.value);
+
+            if (isNaN(nRabFurm) || nRabFurm === @nRabFurm) {
+                return;
+            }
+
+            // Сохранить все введённые перед обновлением страницы
+            let variantId = await saveVariant();
+
+            window.location.replace("/home/parameters?id=" + variantId + "&nRabFurm=" + nRabFurm);
+        }
+        func();
+    }
+
+    function convertInitialDataDetailed() {
+        let textbox = null;
+        let json = {};
+        let value = null;
+        @if (parameters is not null)
+        {
+            foreach (var param in parameters)
+            {
+                if (!param.Type.StartsWith("List"))
+                {
+                    <text>
+                    textbox = document.getElementsByName("furm" + "@param.Name")[0];
+                    value = parseFloat(textbox.value.replace(",", "."));
+                    json["@param.Name"] = {
+                        value: value,
+                        description: "@Html.Raw(@param.Description)",
+                        name: "@(param.Name)",
+                    };
+                    </text>
+                }
+                else
+                {
+                    var isCheckBox = param.Type == "List<bool>";
+
+                    <text>
+                    value = [];
+                    </text>
+                    for (int i = 0; i < nRabFurm; i++)
+                    {
+                        <text>
+                        textbox = document.getElementsByName("furm" + "@param.Name@i")[0];
+                        </text>
+                        if (!isCheckBox)
+                        {
+                            <text>value[@i] = parseFloat(textbox.value.replace(",", "."));</text>
+                        }
+                        else
+                        {
+                            <text>value[@i] = textbox.checked; </text>
+                        }
+                    }
+                    <text>
+                    json["@param.Name"] = {
+                        value: value,
+                        description: "@Html.Raw(@param.Description)",
+                        name: "@(param.Name)",
+                    };
+                    </text>
+                }
+            }
+        }
+        return json;
+    }
+
+    function convertInitialData() {
+        let result = convertInitialDataDetailed();
+        for (let name in result) {
+            result[name] = result[name].value;
+        }
+        return result;
+    }
+
+    async function postRequestNoJson(url, data) {
+        await fetch(url, {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    }
+
+    async function postRequest(url, data) {
+        return await (await fetch(url, {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })).json();
+    }
+
+    function redirectPost(url, data) {
+        let form = document.createElement('form');
+        document.body.appendChild(form);
+        form.method = 'post';
+        form.action = url;
+        for (var name in data) {
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = JSON.stringify(data[name]);
+            form.appendChild(input);
+        }
+        form.submit();
+    }
+
+    async function saveVariant() {
+        let data = {
+            name: document.getElementsByName("variantName")[0].value,
+            ownerId: @(User?.FindFirst("UserId")?.Value ?? ""),
+            data: convertInitialData(),
+        };
+        return parseInt(await postRequest("/server/saveVariant?id=@Model.VariantId", data));
+    }
+
+    function sendAndRedirect() {
+        async function func() {
+            @if (!Model.ShowResults)
+            {
+                <text>let variantId = await saveVariant();</text>
+            }
+            else
+            {
+                <text>let variantId = @Model.VariantId;</text>
+            }
+
+            let responseData = {
+                variantName: document.getElementsByName("variantName")[0].value,
+                initialData: convertInitialDataDetailed(),
+            };
+            redirectPost("/home/results?id="+variantId, responseData);
+        }
+        func();
+    }
+</script>
+
+@if (Model.ShowResults)
+{
+    <text>
+        <label>Подождите немного, Ваш запрос обрабатывается...</label>
+        <div class="text-center" hidden>
+    </text>
+}
+else
+{
+    <text>
+        <div class="text-center">
+    </text>
+}
+
+<div class="text-start">
+    <button class="btn btn-primary" onclick="location.href='/home';">Вернуться к списку вариантов</button>
+</div>
+@if (Model.VariantId > 0)
+{
+    <h1 class="display-4">Вариант #@Model.VariantId "@Html.Raw(Model.VariantName)"</h1>
+}
+else
+{
+    <h1 class="display-4">Новый вариант</h1>
+}
+
+@if (Model.ErrorMessage != null)
+{
+    <p class="text-danger">@Model.ErrorMessage</p>
+}
+
+<h1 class="display-4">Исходные данные для расчёта</h1>
+@if (parameters is null)
+{
+    @Html.Label("Произошла ошибка, не получилось получить список входных параметров.")
+}
+else
+{
+    @Html.TextBox("variantName", Model.VariantId > 0 ? Model.VariantName : "(Без названия)", textboxAttributes)
+
+    <h2 class="display-6">Распределение дутья по фурмам</h2>
+
+    foreach (var param in parameters)
+    {
+        if (param.Type.StartsWith("List"))
+            continue;
+
+        <div class="mb-3">
+            @Html.Label(param.Description)
+            @if (param.Name == "nRabFurm")
+            {
+                @Html.TextBox("furm" + param.Name, nRabFurm, textboxAttributes)
+            }
+            else
+            {
+                double value = ((JsonElement)param.DefaultValue).GetDouble();
+                @Html.TextBox("furm" + param.Name, ((JsonElement)param.DefaultValue).GetDouble(), value >= 0 ? textboxAttributes : textboxAttributesInvalid)
+            }
+        </div>
+
+        if (param.Name == "nRabFurm")
+        {
+            <button class="btn btn-primary" onclick="furmChange()">Изменить количество фурм в таблицах</button>
+        }
+    }
+
+    <table class="table">
+        @foreach (var param in parameters)
+        {
+            if (!param.Type.StartsWith("List"))
+                continue;
+            double[] values = ((JsonElement)param.DefaultValue).EnumerateArray().Select(x =>
+                x.ValueKind == JsonValueKind.True ? 1.0 : x.ValueKind == JsonValueKind.False ? 0.0 : x.GetDouble()
+            ).ToArray();
+            bool isCheckBox = param.Type == "List<bool>";
+            int furmCount = nRabFurm > 0 ? nRabFurm : values.Length;
+            int rows = (furmCount - 1) / 5 + 1;
+            <tr>
+                <td>@param.Description</td>
+                <td>
+                    <table class="table">
+                        @for (int y = 0; y < rows; y++)
+                        {
+                            <tr>
+                                @for (int x = 0; x < 5; x++)
+                                {
+                                    int id = y * 5 + x + 1;
+                                    if (id > furmCount)
+                                        continue;
+                                    <td>
+                                        @Html.Label("Фурма " + id)
+                                    </td>
+                                }
+                            </tr>
+                            <tr>
+                                @for (int x = 0; x < 5; x++)
+                                {
+                                    int id = y * 5 + x;
+                                    if (id >= furmCount)
+                                        continue;
+                                    <td>
+                                        @if (!isCheckBox)
+                                        {
+                                            double value = id < values.Length ? values[id] : 0.0;
+                                            @Html.TextBox("furm" + param.Name + id, value, value >= 0 ? textboxAttributes : textboxAttributesInvalid)
+                                        }
+                                        else
+                                        {
+                                            @Html.CheckBox("furm" + param.Name + id, id < values.Length ? values[id] == 1.0 : false,
+                                                new Dictionary<string, string> { { "class", "form-check-input" } });
+                                            <label class="form-check-label" for="@("furm" + param.Name + id)">Открыта</label>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </table>
+                </td>
+            </tr>
+        }
+    </table>
+}
+<button class="btn btn-primary" onclick="sendAndRedirect()">Рассчитать</button>
+
+@if (Model.ShowResults)
+{
+    <script>
+        sendAndRedirect();
+    </script>
+}
+</div>

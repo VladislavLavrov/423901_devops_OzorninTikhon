@@ -1,0 +1,16 @@
+﻿@model UserAccountDataModel
+@{
+    ViewData["Title"] = "Панель администратора - Назначение администратором";
+}
+<p><a class="btn btn-primary" href="/home/userSettings?userId=@Model.Id">Вернуться к настройкам пользователя</a></p>
+<div class="text-center">
+    <h1 class="display-4">Назначить пользователя администратором сайта</h1>
+    <h1 class="display-6">@Model.GetFullName()</h1>
+    <p>
+        Вы уверены, что хотите выполнить данное действие? Данный пользователь получит доступ
+        к данным всех пользователей сайта, ко всем сохранённым вариантам расчёта, к панели администраторов.
+        Назначайте администраторами только тех людей, которым Вы доверяете.
+    </p>
+    <p><a class="btn btn-primary" href="/admin/setUserAdmin?userId=@Model.Id&admin=true">Назначить пользователя администратором</a></p>
+    <p><a class="btn btn-primary" href="/admin/userList">Вернуться к списку пользователей</a></p>
+</div>

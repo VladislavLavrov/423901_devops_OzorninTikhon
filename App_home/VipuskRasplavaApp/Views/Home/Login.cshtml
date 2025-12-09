@@ -1,0 +1,27 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Авторизация";
+}
+<div class="text-center">
+    <h1 class="display-4">Авторизация</h1>
+    @if (Model == "registerSuccessful")
+    {
+        <p class="text-success">Регистрация прошла успешно!</p>
+    }
+    else if (Model == "loginFail")
+    {
+        <p class="text-danger">Неправильный логин или пароль.</p>
+    }
+    <form method="post">
+        <p>
+            @Html.Label("Электронная почта")
+            @Html.TextBox("email", "", new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            @Html.Label("Пароль")
+            @Html.TextBox("password", "", new Dictionary<string, object>() { { "class", "form-control" }, { "type", "password" } })
+        </p>
+        <p><button class="btn btn-primary">Войти</button></p>
+    </form>
+    <p>Нет аккаунта? <button class="btn btn-primary" onclick="location.href='/home/register';">Зарегистрироваться</button></p>
+</div>

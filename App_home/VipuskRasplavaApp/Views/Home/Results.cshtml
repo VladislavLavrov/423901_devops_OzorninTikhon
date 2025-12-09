@@ -1,0 +1,312 @@
+﻿@model DataViewModel
+
+@{
+    if ((int?)ViewData["VariantId"] > 0)
+    {
+        ViewData["Title"] = $"Результаты расчёта - Вариант #{ViewData["VariantId"]} \"{ViewData["VariantName"]}\"";
+    }
+    else
+    {
+        ViewData["Title"] = $"Результаты расчёта - Вариант \"{ViewData["VariantName"]}\"";
+    }
+    if (Model.InitialData.TryGetValue("initialData", out var initialData) && initialData is not null)
+    {
+        furmOpen = initialData.Values
+            .Where(p => p.Name == "furmPodachaDutya")
+            .Select(p => (object[])p.Value)
+            .First()
+            .Cast<bool>()
+            .ToArray();
+    }
+}
+
+@functions {
+    double Round(double value) => Math.Round(value, 3);
+
+    int checkBoxCount = 0;
+    bool[] furmOpen;
+
+    void GenerateResultTable(string title, IEnumerable<DataViewModel.Parameter> values)
+    {
+        @if (title != "")
+        {
+            <h2 class="display-6">@title</h2>
+        }
+        <table class="table table-striped">
+            <tr>
+                <th>Название параметра</th>
+                <th>Значение параметра</th>
+            </tr>
+            @foreach (var entry in values)
+            {
+                if (entry.Value is double)
+                {
+                    <tr>
+                        <td>@entry.Description</td>
+                        <td>@Round((double)entry.Value)</td>
+                    </tr>
+                }
+            }
+        </table>
+    }
+
+    void GenerateFurmTable(IEnumerable<DataViewModel.Parameter> parameters)
+    {
+        <table class="table">
+            @foreach (var param in parameters)
+            {
+                double[] values;
+                bool isCheckBox = false;
+                if (param.Value is object[])
+                {
+                    object[] objArray = (object[])param.Value;
+                    if (objArray[0] is double)
+                    {
+                        values = objArray.Cast<double>().ToArray();
+                    }
+                    else if (objArray[0] is bool)
+                    {
+                        values = objArray.Cast<bool>().Select(x => x ? 1.0 : 0.0).ToArray();
+                        isCheckBox = true;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+                int furmCount = values.Length;
+                int furmPerRow = 10;
+                int rows = (furmCount - 1) / furmPerRow + 1;
+                <tr>
+                    <td>@param.Description</td>
+                    <td>
+                        <table class="table">
+                            @for (int y = 0; y < rows; y++)
+                            {
+                                <tr>
+                                    @for (int x = 0; x < furmPerRow; x++)
+                                    {
+                                        int id = y * furmPerRow + x + 1;
+                                        if (id > furmCount)
+                                            continue;
+                                        <td>
+                                            @Html.Label("Фурма " + id)
+                                        </td>
+                                    }
+                                </tr>
+                                <tr>
+                                    @for (int x = 0; x < furmPerRow; x++)
+                                    {
+                                        int id = y * furmPerRow + x;
+                                        if (id >= furmCount)
+                                            continue;
+                                        <td>
+                                            @if (furmOpen[id])
+                                            {
+                                                if (!isCheckBox)
+                                                {
+                                                    <text>
+                                                        @Html.Label(Round(values[id]).ToString())
+                                                    </text>
+                                                }
+                                                else
+                                                {
+                                                    <input class="form-check-input" type="checkbox" value="" id="@(checkBoxCount++.ToString())"
+                                                           @if (values[id] == 1.0) { <text> checked</text> } disabled>
+                                                    <label class="form-check-label" for="@(checkBoxCount++.ToString())">Открыта</label>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                @Html.Raw("Закрыта")
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </table>
+                    </td>
+                </tr>
+            }
+        </table>
+    }
+}
+
+<script>
+function base64ToArray(base64) {
+    var binaryString = atob(base64);
+    var bytes = new Uint8Array(binaryString.length);
+    for (var i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}
+
+var saveByteArray = (function () {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    return function (data, name) {
+        var blob = new Blob(data, {type: "octet/stream"}),
+            url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = name;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
+}());
+
+async function saveExcelReportAsync() {
+    const response = await fetch("/server/generateExcelReport?variantId=@ViewData["VariantId"]");
+    const json = await response.json();
+    const bytes = base64ToArray(json);
+    saveByteArray([bytes], "report.xlsx");
+}
+
+function saveExcelReport() {
+    saveExcelReportAsync();
+}
+
+</script>
+
+<div>
+    <div class="text-start">
+        <button class="btn btn-primary" onclick="location.href='/home';">Вернуться к списку вариантов</button>
+    </div>
+
+    @if ((int?)ViewData["VariantId"] > 0)
+    {
+        <h1 class="display-4">Вариант #@ViewData["VariantId"] "@Html.Raw(ViewData["VariantName"])"</h1>
+    }
+    else
+    {
+        <h1 class="display-4">Вариант "@Html.Raw(ViewData["VariantName"])"</h1>
+    }
+    <h1 class="display-4">Результаты расчёта</h1>
+    <div class="text-start">
+        <button class="btn btn-primary" onclick="saveExcelReport()">Сохранить в файл Excel</button>
+    </div>
+    <h2 class="display-6">Исходные данные</h2>
+    @{GenerateResultTable("", Model.InitialData["initialData"].Values);}
+    @{GenerateFurmTable(Model.InitialData["initialData"].Values.Where(p => p.Value is object[]));}
+    @{GenerateResultTable("Предварительные расчёты", Model.ResultsData.Predvarit.Values.Select(x => x.ToParameter()));}
+    <h2 class="display-6">Распределение дутья по фурмам</h2>
+    @{GenerateFurmTable(Model.ResultsData.Dutye.Values.Select(x => x.ToParameter()));}
+    <table>
+        <tr>
+            <td><div style="width: 400px;"><canvas id="rashDut"></canvas></div></td>
+            <td><div style="width: 400px;"><canvas id="teorTemp"></canvas></div></td>
+            <td><div style="width: 400px;"><canvas id="protyazhOchag"></canvas></div></td>
+        </tr>
+        <tr>
+            <td colspan="3"><div style="width: 800px;"><canvas id="potrebRash"></canvas></div></td>
+        </tr>
+    </table>
+    <script>
+@{
+            int nRabFurm = Model.ResultsData.Dutye["factRashDut"].Value.Count;
+}
+let labels = [
+        @for (int i = 0; i < nRabFurm; i++)
+        {
+            <text>
+            'Фурма @(i + 1)',
+            </text>
+        }
+];
+let data = null;
+let config = null;
+        @{
+            void GenerateChart(string dutyeKey, string name, string canvasId)
+            {
+                DataViewModel.Parameter chartParam = Model.ResultsData.Dutye[dutyeKey].ToParameter();
+                double[] chartValues = ((object[])chartParam.Value).Cast<double>().ToArray();
+                <text>
+                data = {
+                  labels: labels,
+                  datasets: [{
+                    label: '@Html.Raw(name)',
+                    data: [
+                                    @foreach (double value in chartValues)
+                        {
+                            <text>
+                                @(value.ToString().Replace(',', '.')),
+                            </text>
+                        }
+                    ],
+                    fill: true,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(255, 99, 132)'
+                  }]
+                };
+                config = {
+                  type: 'radar',
+                  data: data,
+                  options: {
+                    elements: {
+                      line: {
+                        borderWidth: 3
+                      }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                        suggestedMin: 0,
+                    }
+            }
+                  },
+                };
+                new Chart(document.getElementById('@canvasId'), config);
+                </text>
+            }
+
+            GenerateChart("factRashDut", "Расход дутья, м3/мин", "rashDut");
+            GenerateChart("teorTGor", "Теоретическая температура горения по фурмам, оС", "teorTemp");
+            GenerateChart("protZoniOkisl", "Протяженность окислительных очагов по фурмам, м", "protyazhOchag");
+}
+
+data = {
+  labels: labels,
+  datasets: [{
+    label: 'Потребный расход природного газа, м3/ч',
+    data: [
+        @foreach (double value in Model.ResultsData.Dutye["trebRashGaz"].Value)
+        {
+            <text>
+                @(value.ToString().Replace(',', '.')),
+            </text>
+        }
+    ],
+    backgroundColor: [
+      'rgba(255, 99, 132, 0.2)',
+    ],
+    borderColor: [
+      'rgb(255, 99, 132)',
+    ],
+    borderWidth: 1
+  }]
+};
+config = {
+  type: 'bar',
+  data: data,
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  },
+};
+new Chart(document.getElementById('potrebRash'), config);
+    </script>
+</div>

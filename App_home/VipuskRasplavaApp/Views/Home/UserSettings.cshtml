@@ -1,0 +1,37 @@
+﻿@model UserSettingsDataModel
+@{
+    ViewData["Title"] = "Настройки пользователя";
+}
+<div class="text-center">
+    <h1 class="display-4">Настройки пользователя</h1>
+    <h1 class="display-6">@Model.User.GetFullName()</h1>
+    @if (Model.Success)
+    {
+        <p class="text-success">Настройки пользователя изменены успешно!</p>
+    }
+    @if (Model.Message?.Length > 0)
+    {
+        <p class="text-danger">@Model.Message</p>
+    }
+    <form method="post">
+        @Html.Hidden("id", Model.User.Id)
+        <p>
+            <label>Электронная почта</label>
+            @Html.TextBox("email", Model.User.Email, new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            <label>Фамилия</label>
+            @Html.TextBox("lastName", Model.User.LastName, new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            <label>Имя</label>
+            @Html.TextBox("firstName", Model.User.FirstName, new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p>
+            <label>Отчество (при наличии)</label>
+            @Html.TextBox("middleName", Model.User.MiddleName, new Dictionary<string, object>() { { "class", "form-control" } })
+        </p>
+        <p><a class="btn btn-primary" href="/home/changePassword?userId=@Model.User.Id">Изменить пароль</a></p>
+        <p><button class="btn btn-primary">Изменить настройки</button></p>
+    </form>
+</div>
