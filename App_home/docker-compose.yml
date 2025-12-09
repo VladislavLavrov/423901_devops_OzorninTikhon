@@ -11,7 +11,7 @@ services:
     ports:
       - "15432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./postgresql:/var/lib/postgresql
     networks:
       - app-network
 
@@ -28,9 +28,6 @@ services:
       - HostAppAddress=http://localhost:5009
     networks:
       - app-network
-
-volumes:
-  pgdata:
 
 networks:
   app-network:
