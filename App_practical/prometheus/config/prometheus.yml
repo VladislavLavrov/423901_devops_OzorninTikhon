@@ -6,25 +6,3 @@ scrape_configs:
     scrape_interval: 10s 
     static_configs:
       - targets: ["host.docker.internal:5009"]
-
-groups:
-  - name: response_time_alerts
-    rules:
-      - alert: HighResponseTime
-        expr: avg_over_time(http_server_request_duration_seconds_sum[5m]) > 0.5
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Высокое время отклика"
-          description: "Среднее время отклика превышает 0.5 секунд за последние 5 минут."
-  - name: error_alerts
-    rules:
-      - alert: HighErrorRate
-        expr: sum(rate(http_server_requests_total{status="500"}[5m])) > 10
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Высокий уровень ошибок 500"
-          description: "Количество ошибок 500 превышает 10 за последние 5 минут."

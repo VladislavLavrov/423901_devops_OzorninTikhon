@@ -20,14 +20,14 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
     ports:
-      - 9090:9090
+      - 9099:9090
     networks:
       - metrics-net
 
   renderer:
     image: grafana/grafana-image-renderer:latest
     ports:
-      - 9000:8081
+      - 9009:8081
     networks:
       - metrics-net
 
@@ -37,12 +37,12 @@ services:
       - prometheus
       - renderer
     ports:
-      - 3000:3000
+      - 3009:3000
     volumes:
       - ./grafana/data:/var/lib/grafana:rw
     environment:
-      GF_RENDERING_SERVER_URL: http://renderer:9000/render
-      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      GF_RENDERING_SERVER_URL: http://renderer:9009/render
+      GF_RENDERING_CALLBACK_URL: http://grafana:3009/
       GF_LOG_FILTERS: rendering:debug
     networks:
       - metrics-net
