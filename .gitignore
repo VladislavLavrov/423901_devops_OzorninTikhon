@@ -9,3 +9,5 @@ packages/
 
 # Visual Studio 2022 cache/options directory
 .vs/
+/App_practical/grafana
+/App_practical/prometheus
